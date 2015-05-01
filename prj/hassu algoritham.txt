@@ -1,0 +1,69 @@
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import javax.imageio.ImageIO;
+
+public class HassuAdmin {
+
+    public static BufferedImage resizeImage(BufferedImage originalImage, int type)
+    {
+                      int IMG_WIDTH=250,IMG_HEIGHT=250;  
+	BufferedImage resizedImage = new BufferedImage(IMG_WIDTH, IMG_HEIGHT, type);
+	Graphics2D g = resizedImage.createGraphics();
+	g.drawImage(originalImage, 0, 0, IMG_WIDTH, IMG_HEIGHT, null);
+	g.dispose(); 
+	return resizedImage;
+    }
+     public static double calculate(BufferedImage image , int cl)
+     {             
+            int  width = image.getWidth();
+            int height = image.getHeight();        
+            int count = 0;
+            int redmatrix[][] = new int[height][width];
+            int greenmatrix[][] = new int[height][width];
+            int bluematrix[][] = new int[height][width];
+            for(int i=0; i<height; i++)
+            {         
+                for(int j=0; j<width; j++)
+                {           
+                    count++;
+                    Color c = new Color(image.getRGB(j, i));
+                    redmatrix[i][j] = c.getRed();
+                    greenmatrix[i][j] = c.getGreen();
+                    bluematrix[i][j] = c.getBlue();                    
+                }
+            }
+            SD s = new SD();
+            ArrayList<Range> t = s.getRange(0,255);       
+            double redsum = s.getStepDeviation(t,redmatrix,cl);
+            double greensum = s.getStepDeviation(t,greenmatrix,cl);
+            double bluesum = s.getStepDeviation(t,bluematrix,cl);
+            return redsum+greensum+bluesum;
+     }
+    public static void main(String a[])
+    {
+        try
+        {
+                BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                System.out.println("Enter Dataset Path");
+                String path = br.readLine();
+                System.out.println("Enter No Of Class");
+                int cl = Integer.parseInt(br.readLine());
+                File dFolder = new File(path);
+                File []files = dFolder.listFiles();
+                for ( File f : files)
+                {
+                    BufferedImage src = ImageIO.read(f);
+                    BufferedImage dst = resizeImage(src, BufferedImage.TYPE_INT_RGB);
+                    System.out.println(calculate(dst,cl));                    
+                }
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+}
